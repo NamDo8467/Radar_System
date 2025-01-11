@@ -6,19 +6,20 @@
 #include <Servo.h>
 #define TRIG_PIN 4
 #define ECHO_PIN 3
-#define RED_LED_PIN 8
-#define YELLOW_LED_PIN 7
-#define GREEN_LED_PIN 12
+
 SR04 sr04 = SR04(ECHO_PIN,TRIG_PIN);
 Servo myservo;  // create servo object to control a servo
 
 int receiver = 11;
 int delayTime = 15;
+int RED_LED_PIN = 8;
+int YELLOW_LED_PIN = 7;
+int GREEN_LED_PIN = 12;
 int duration;
 IRrecv irrecv(receiver);    // create instance of 'irrecv'
 uint32_t last_decodedRawData = 0;//vairable uses to store the last decodedRawData
 
-long a;
+long distance;
 int pos = 0;    // variable to store the servo position
 
 bool automatic_mode = true;
@@ -37,7 +38,28 @@ int calculateDistance(){
 }
 
 void checkIfEnteringAnObject(){
-  a = calculateDistance();
+  distance = calculateDistance();
+
+  // Green LED on when distance >= 40
+  if (distance >= 40) {
+    digitalWrite(GREEN_LED_PIN, HIGH);
+    digitalWrite(YELLOW_LED_PIN, LOW);
+    digitalWrite(RED_LED_PIN, LOW);
+  }
+  
+  // Yellow LED on when 20 <= distance < 40
+  else if (distance < 40 && distance >= 20){
+    digitalWrite(GREEN_LED_PIN, LOW);
+    digitalWrite(YELLOW_LED_PIN, HIGH);
+    digitalWrite(RED_LED_PIN, LOW);
+  }
+
+  // Red LED on when distance < 20
+  else if (distance < 20){
+    digitalWrite(GREEN_LED_PIN, LOW);
+    digitalWrite(YELLOW_LED_PIN, LOW);
+    digitalWrite(RED_LED_PIN, HIGH);
+  }
   // a = sr04.Distance();
   // Serial.print(a);
   // Serial.println(" cm");
@@ -49,11 +71,15 @@ void setup()
   myservo.attach(9);
   automatic_mode = true;
   pinMode(RED_LED_PIN, OUTPUT);
-  // pinMode(YELLOW_LED_PIN, OUTPUT);
-  // pinMode(GREEN_LED_PIN, OUTPUT);
-  irrecv.enableIRIn();
+  pinMode(YELLOW_LED_PIN, OUTPUT);
+  pinMode(GREEN_LED_PIN, OUTPUT);
+  irrecv.enableIRIn(); 
   Serial.begin(9600);
-  digitalWrite(RED_LED_PIN, HIGH);
+
+  digitalWrite(GREEN_LED_PIN, LOW);
+  digitalWrite(YELLOW_LED_PIN, LOW);
+  digitalWrite(RED_LED_PIN, LOW);
+  // digitalWrite(RED_LED_PIN, HIGH);
 
   // myservo.writeMicroseconds(delayTime00);
   
@@ -84,6 +110,8 @@ void loop() {
           automatic_mode = false;
           pos = 0;
           myservo.write(pos);
+          // checkIfEnteringAnObject();
+          delay(delayTime);
           break;
         
         case 0xF30CFF00: // "1" button is pressed -> Turn on the automatic mode
@@ -94,12 +122,14 @@ void loop() {
           pos += 5;
           if(pos >= 180) pos = 180;
           myservo.write(pos);
+          // checkIfEnteringAnObject();
           delay(delayTime);
           break;
         case 0xEA15FF00: // VOL- button pressed -> -> Rotate the servo by 5 counterclockwise
           pos -= 5;
           if(pos <= 0) pos = 0;
           myservo.write(pos);
+          // checkIfEnteringAnObject();
           delay(delayTime);
           break;
 
@@ -107,28 +137,33 @@ void loop() {
           pos = 0;
 
           myservo.write(pos);
+          // checkIfEnteringAnObject();
           delay(delayTime);
           break;
         case 0xA55AFF00: // "6" button is pressed -> Rotate the servo to 45 degree position
           pos = 45;
           myservo.write(pos);
+          // checkIfEnteringAnObject();
           delay(delayTime);
           break;
 
         case 0xAD52FF00: // "68 button is pressed -> Rotate the servo to 90 degree position
           pos = 90;
           myservo.write(pos);
+          // checkIfEnteringAnObject();
           delay(delayTime);
           break;
         case 0xF708FF00: // "4" button is pressed -> Rotate the servo to 135 degree position
           pos = 135;
           myservo.write(pos);
+          // checkIfEnteringAnObject();
           delay(delayTime);
           break;
         
         case 0xE31CFF00:
           pos = 180;
           myservo.write(pos);
+          // checkIfEnteringAnObject();
           delay(delayTime);
           break;
       
@@ -154,16 +189,18 @@ void loop() {
       // in steps of 1 degree
       
       myservo.write(pos);               // tell servo to go to position in variable 'pos'
-      // checkIfEnteringAnObject();              
+      checkIfEnteringAnObject();              
       delay(delayTime);                       // waits delayTimems for the servo to reach the position
     }
     for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
       myservo.write(pos);              // tell servo to go to position in variable 'pos'
-      // checkIfEnteringAnObject();
+      checkIfEnteringAnObject();
       delay(delayTime);                       // waits delayTimems for the servo to reach the position
     }
 
     
+  }else{
+    checkIfEnteringAnObject();
   }
 
   
