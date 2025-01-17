@@ -14,6 +14,8 @@ int RED_LED_PIN = 8;
 int YELLOW_LED_PIN = 6;
 int GREEN_LED_PIN = 12;
 int duration;
+int buzzer = 13;
+int sound_duration = 1000;
 IRrecv irrecv(receiver);    // create instance of 'irrecv'
 uint32_t last_decodedRawData = 0;//vairable uses to store the last decodedRawData
 
@@ -45,6 +47,8 @@ void checkIfEnteringAnObject(){
     digitalWrite(GREEN_LED_PIN, HIGH);
     digitalWrite(YELLOW_LED_PIN, LOW);
     digitalWrite(RED_LED_PIN, LOW);
+    digitalWrite(buzzer, LOW);
+    // delay(sound_duration);//wait for sound_duration ms
   }
   
   // Yellow LED on when 20 <= distance < 40
@@ -52,6 +56,8 @@ void checkIfEnteringAnObject(){
     digitalWrite(GREEN_LED_PIN, LOW);
     digitalWrite(YELLOW_LED_PIN, HIGH);
     digitalWrite(RED_LED_PIN, LOW);
+    digitalWrite(buzzer, LOW);
+    // delay(sound_duration);//wait for sound_duration ms
   }
 
   // Red LED on when distance < 20
@@ -60,6 +66,8 @@ void checkIfEnteringAnObject(){
     digitalWrite(GREEN_LED_PIN, LOW);
     digitalWrite(YELLOW_LED_PIN, LOW);
     digitalWrite(RED_LED_PIN, HIGH);
+    digitalWrite(buzzer, HIGH);
+    // delay(sound_duration);
   }
 
 }
@@ -73,11 +81,16 @@ void setup()
   pinMode(YELLOW_LED_PIN, OUTPUT);
   pinMode(GREEN_LED_PIN, OUTPUT);
   irrecv.enableIRIn(); 
-  Serial.begin(9600);
+
+  pinMode(buzzer, OUTPUT); //initialize the buzzer pin as an output
 
   digitalWrite(GREEN_LED_PIN, LOW);
   digitalWrite(YELLOW_LED_PIN, LOW);
   digitalWrite(RED_LED_PIN, LOW);
+
+  Serial.begin(9600);
+
+
   // digitalWrite(RED_LED_PIN, HIGH);
 
   // myservo.writeMicroseconds(delayTime00);
