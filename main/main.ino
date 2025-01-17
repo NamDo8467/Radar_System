@@ -1,5 +1,3 @@
-
-
 #include <IRremote.hpp>
 
 #include <SR04.h>
@@ -13,7 +11,7 @@ Servo myservo;  // create servo object to control a servo
 int receiver = 11;
 int delayTime = 15;
 int RED_LED_PIN = 8;
-int YELLOW_LED_PIN = 7;
+int YELLOW_LED_PIN = 6;
 int GREEN_LED_PIN = 12;
 int duration;
 IRrecv irrecv(receiver);    // create instance of 'irrecv'
@@ -40,8 +38,10 @@ int calculateDistance(){
 void checkIfEnteringAnObject(){
   distance = calculateDistance();
 
+
   // Green LED on when distance >= 40
   if (distance >= 40) {
+
     digitalWrite(GREEN_LED_PIN, HIGH);
     digitalWrite(YELLOW_LED_PIN, LOW);
     digitalWrite(RED_LED_PIN, LOW);
@@ -55,14 +55,13 @@ void checkIfEnteringAnObject(){
   }
 
   // Red LED on when distance < 20
-  else if (distance < 20){
+  else if(distance >= 1 && distance < 20) {
+    
     digitalWrite(GREEN_LED_PIN, LOW);
     digitalWrite(YELLOW_LED_PIN, LOW);
     digitalWrite(RED_LED_PIN, HIGH);
   }
-  // a = sr04.Distance();
-  // Serial.print(a);
-  // Serial.println(" cm");
+
 }
 
 
@@ -191,16 +190,28 @@ void loop() {
       myservo.write(pos);               // tell servo to go to position in variable 'pos'
       checkIfEnteringAnObject();              
       delay(delayTime);                       // waits delayTimems for the servo to reach the position
+      Serial.print(pos);
+      Serial.print(",");
+      Serial.print(distance);
+      Serial.print(".");
     }
     for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
       myservo.write(pos);              // tell servo to go to position in variable 'pos'
       checkIfEnteringAnObject();
       delay(delayTime);                       // waits delayTimems for the servo to reach the position
+      Serial.print(pos);
+      Serial.print(",");
+      Serial.print(distance);
+      Serial.print(".");
     }
 
     
   }else{
     checkIfEnteringAnObject();
+    Serial.print(pos);
+    Serial.print(",");
+    Serial.print(distance);
+    Serial.print(".");
   }
 
   
